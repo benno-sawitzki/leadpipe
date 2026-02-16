@@ -7,11 +7,11 @@ export function staleCmd(program: Command): void {
     .command('stale')
     .description('Leads with no recent touches')
     .option('--days <days>', 'stale threshold')
-    .action((opts: any) => {
-      const config = loadConfig();
+    .action(async (opts: any) => {
+      const config = await loadConfig();
       const days = Number(opts.days) || config.stale.days;
       const cutoff = new Date(Date.now() - days * 86400000).toISOString();
-      const stale = loadLeads().filter(l => {
+      const stale = (await loadLeads()).filter(l => {
         if (['won', 'lost', 'closed', 'churned'].includes(l.stage)) return false;
         const lastTouch = l.touches.length ? l.touches[l.touches.length - 1].date : l.createdAt;
         return lastTouch < cutoff;

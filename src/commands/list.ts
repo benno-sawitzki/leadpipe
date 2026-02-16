@@ -9,9 +9,9 @@ export function listCmd(program: Command): void {
     .option('--stage <stage>')
     .option('--tag <tag>')
     .option('--source <source>')
-    .action((opts: any) => {
+    .action(async (opts: any) => {
       const pipe = program.opts().pipe || 'default';
-      let leads = loadLeads().filter(l => l.pipeline === pipe);
+      let leads = (await loadLeads()).filter(l => l.pipeline === pipe);
       if (opts.stage) leads = leads.filter(l => l.stage === opts.stage);
       if (opts.tag) leads = leads.filter(l => l.tags.includes(opts.tag));
       if (opts.source) leads = leads.filter(l => l.source === opts.source);

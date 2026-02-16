@@ -8,9 +8,9 @@ export function exportCmd(program: Command): void {
     .description('Export leads')
     .option('--csv', 'export as CSV')
     .option('--stage <stage>', 'filter by stage')
-    .action((opts: any) => {
+    .action(async (opts: any) => {
       const pipe = program.opts().pipe || 'default';
-      let leads = loadLeads().filter(l => l.pipeline === pipe);
+      let leads = (await loadLeads()).filter(l => l.pipeline === pipe);
       if (opts.stage) leads = leads.filter(l => l.stage === opts.stage);
 
       if (opts.csv) {

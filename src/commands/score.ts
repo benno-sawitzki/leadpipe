@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import { loadLeads, saveLeads, findLead, loadConfig } from '../store.js';
-import { Lead } from '../types.js';
+import { Lead, Config } from '../types.js';
 import { shortId } from '../format.js';
 
-function recalcScore(leads: Lead[], config: ReturnType<typeof loadConfig>): void {
+function recalcScore(leads: Lead[], config: Config): void {
   const ruleMap = new Map(config.scoring.rules.map(r => [r.type, r.points]));
   for (const lead of leads) {
     lead.score = lead.touches.reduce((sum: number, t) => sum + (ruleMap.get(t.type) || 0), 0);
@@ -17,13 +17,13 @@ export function scoreCmd(program: Command): void {
     .option('--add <points>', 'add points')
     .option('--reason <reason>', 'reason for adjustment')
     .option('--recalc', 'recalculate all scores')
-    .action((id: string | undefined, opts: any) => {
-      const leads = loadLeads();
-      const config = loadConfig();
+    .action(async (id: string | undefined, opts: any) => {
+      const leads = await loadLeads();
+      const config = await loadConfig();
 
       if (opts.recalc) {
         recalcScore(leads, config);
-        saveLeads(leads);
+        await saveLeads(leads);
         if (program.opts().json) { console.log(JSON.stringify(leads.map(l => ({ id: l.id, name: l.name, score: l.score })), null, 2)); return; }
         console.log('Recalculated scores for all leads.');
         return;
@@ -39,7 +39,7 @@ export function scoreCmd(program: Command): void {
         if (opts.reason) {
           lead.touches.push({ date: lead.updatedAt, note: `Score +${opts.add}: ${opts.reason}`, type: 'note' });
         }
-        saveLeads(leads);
+        await saveLeads(leads);
       }
 
       if (program.opts().json) {

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { Lead, Config } from './types.js';
+import { isCloudMode, getClient } from '@openbrain/cli-client';
 
 const DIR = path.resolve('.leadpipe');
 const LEADS_FILE = path.join(DIR, 'leads.json');
@@ -17,23 +18,27 @@ export function ensureDir(): void {
 export function getDir(): string { return DIR; }
 export function getTemplatesDir(): string { return TEMPLATES_DIR; }
 
-export function loadLeads(): Lead[] {
+export async function loadLeads(): Promise<Lead[]> {
+  if (isCloudMode()) return getClient().listLeads();
   ensureDir();
   if (!fs.existsSync(LEADS_FILE)) return [];
   return JSON.parse(fs.readFileSync(LEADS_FILE, 'utf-8'));
 }
 
-export function saveLeads(leads: Lead[]): void {
+export async function saveLeads(leads: Lead[]): Promise<void> {
+  if (isCloudMode()) { await getClient().bulkWriteLeads(leads); return; }
   ensureDir();
   fs.writeFileSync(LEADS_FILE, JSON.stringify(leads, null, 2));
 }
 
-export function loadConfig(): Config {
+export async function loadConfig(): Promise<Config> {
+  if (isCloudMode()) return getClient().getConfig('leadpipe');
   ensureDir();
   return yaml.load(fs.readFileSync(CONFIG_FILE, 'utf-8')) as Config;
 }
 
-export function saveConfig(config: Config): void {
+export async function saveConfig(config: Config): Promise<void> {
+  if (isCloudMode()) { await getClient().writeConfig('leadpipe', config); return; }
   ensureDir();
   fs.writeFileSync(CONFIG_FILE, yaml.dump(config));
 }
@@ -68,7 +73,7 @@ export function initStore(): void {
     stale: { days: 7 },
     csv: { mapping: { name: 'Name', email: 'Email', company: 'Company' } }
   };
-  saveConfig(defaultConfig);
+  fs.writeFileSync(CONFIG_FILE, yaml.dump(defaultConfig));
 
   // Default templates
   const templates: Record<string, string> = {

@@ -6,10 +6,10 @@ export function velocityCmd(program: Command): void {
   program
     .command('velocity')
     .description('Average days per stage')
-    .action(() => {
+    .action(async () => {
       const pipe = program.opts().pipe || 'default';
-      const leads = loadLeads().filter(l => l.pipeline === pipe);
-      const config = loadConfig();
+      const leads = (await loadLeads()).filter(l => l.pipeline === pipe);
+      const config = await loadConfig();
       const stages = config.pipelines[pipe]?.stages || [];
 
       // For each lead, find stage transitions in touches

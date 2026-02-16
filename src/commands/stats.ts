@@ -6,10 +6,10 @@ export function statsCmd(program: Command): void {
   program
     .command('stats')
     .description('Pipeline overview')
-    .action(() => {
+    .action(async () => {
       const pipe = program.opts().pipe || 'default';
-      const leads = loadLeads().filter(l => l.pipeline === pipe);
-      const config = loadConfig();
+      const leads = (await loadLeads()).filter(l => l.pipeline === pipe);
+      const config = await loadConfig();
       const stages = config.pipelines[pipe]?.stages || [];
 
       const byStage: Record<string, { count: number; value: number }> = {};

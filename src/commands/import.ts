@@ -10,12 +10,12 @@ export function importCmd(program: Command): void {
     .command('import')
     .description('Import leads from CSV')
     .requiredOption('--csv <file>', 'CSV file path')
-    .action((opts: any) => {
-      const config = loadConfig();
+    .action(async (opts: any) => {
+      const config = await loadConfig();
       const mapping = config.csv.mapping;
       const raw = fs.readFileSync(opts.csv, 'utf-8');
       const records = parse(raw, { columns: true, skip_empty_lines: true });
-      const leads = loadLeads();
+      const leads = await loadLeads();
       const pipe = program.opts().pipe || 'default';
       let count = 0;
 
@@ -42,7 +42,7 @@ export function importCmd(program: Command): void {
         count++;
       }
 
-      saveLeads(leads);
+      await saveLeads(leads);
       if (program.opts().json) {
         console.log(JSON.stringify({ imported: count }));
       } else {

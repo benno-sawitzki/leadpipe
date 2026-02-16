@@ -16,7 +16,7 @@ export function addCmd(program: Command): void {
     .option('--tags <tags>', 'comma-separated tags')
     .option('--value <value>', '', '0')
     .option('--note <note>', 'initial note')
-    .action((name: string, opts: any) => {
+    .action(async (name: string, opts: any) => {
       const pipe = program.opts().pipe || 'default';
       const now = new Date().toISOString();
       const lead: Lead = {
@@ -41,9 +41,9 @@ export function addCmd(program: Command): void {
         lead.touches.push({ date: now, note: opts.note, type: 'note' });
       }
 
-      const leads = loadLeads();
+      const leads = await loadLeads();
       leads.push(lead);
-      saveLeads(leads);
+      await saveLeads(leads);
 
       if (program.opts().json) {
         console.log(JSON.stringify(lead, null, 2));

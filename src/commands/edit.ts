@@ -14,8 +14,8 @@ export function editCmd(program: Command): void {
     .option('--stage <stage>')
     .option('--tags <tags>')
     .option('--value <value>')
-    .action((id: string, opts: any) => {
-      const leads = loadLeads();
+    .action(async (id: string, opts: any) => {
+      const leads = await loadLeads();
       const lead = findLead(leads, id);
       if (!lead) { console.error('Lead not found.'); process.exit(1); }
 
@@ -29,7 +29,7 @@ export function editCmd(program: Command): void {
       if (opts.value) lead.value = Number(opts.value);
       lead.updatedAt = new Date().toISOString();
 
-      saveLeads(leads);
+      await saveLeads(leads);
       if (program.opts().json) {
         console.log(JSON.stringify(lead, null, 2));
       } else {

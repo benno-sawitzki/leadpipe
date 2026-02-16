@@ -7,8 +7,8 @@ export function contextCmd(program: Command): void {
   program
     .command('context <id>')
     .description('Rich context view for a lead')
-    .action((id: string) => {
-      const lead = findLead(loadLeads(), id);
+    .action(async (id: string) => {
+      const lead = findLead(await loadLeads(), id);
       if (!lead) { console.error('Lead not found.'); process.exit(1); }
 
       if (program.opts().json) { console.log(JSON.stringify(lead, null, 2)); return; }

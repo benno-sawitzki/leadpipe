@@ -6,8 +6,8 @@ export function showCmd(program: Command): void {
   program
     .command('show <id>')
     .description('Show lead details')
-    .action((id: string) => {
-      const lead = findLead(loadLeads(), id);
+    .action(async (id: string) => {
+      const lead = findLead(await loadLeads(), id);
       if (!lead) { console.error('Lead not found.'); process.exit(1); }
       if (program.opts().json) {
         console.log(JSON.stringify(lead, null, 2));

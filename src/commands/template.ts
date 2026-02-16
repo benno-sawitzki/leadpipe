@@ -19,10 +19,10 @@ export function templateCmd(program: Command): void {
     console.log(fs.readFileSync(file, 'utf-8'));
   });
 
-  cmd.command('use <name> <id>').description('Render template with lead data').action((name: string, id: string) => {
+  cmd.command('use <name> <id>').description('Render template with lead data').action(async (name: string, id: string) => {
     const file = path.join(getTemplatesDir(), `${name}.md`);
     if (!fs.existsSync(file)) { console.error('Template not found.'); process.exit(1); }
-    const lead = findLead(loadLeads(), id);
+    const lead = findLead(await loadLeads(), id);
     if (!lead) { console.error('Lead not found.'); process.exit(1); }
     let content = fs.readFileSync(file, 'utf-8');
     content = content.replace(/\{\{(\w+)\}\}/g, (_: string, key: string) => {

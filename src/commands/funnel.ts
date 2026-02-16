@@ -6,10 +6,10 @@ export function funnelCmd(program: Command): void {
   program
     .command('funnel')
     .description('Conversion rates between stages')
-    .action(() => {
+    .action(async () => {
       const pipe = program.opts().pipe || 'default';
-      const leads = loadLeads().filter(l => l.pipeline === pipe);
-      const config = loadConfig();
+      const leads = (await loadLeads()).filter(l => l.pipeline === pipe);
+      const config = await loadConfig();
       const stages = config.pipelines[pipe]?.stages || [];
 
       const counts: Record<string, number> = {};
